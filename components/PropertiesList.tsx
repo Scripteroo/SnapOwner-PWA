@@ -12,20 +12,21 @@ interface Props {
 export default function PropertiesList({ onBack, onSelectProperty }: Props) {
   const [properties, setProperties] = useState<SavedProperty[]>([]);
   const [viewing, setViewing] = useState<SavedProperty | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setProperties(getSavedProperties());
+    getSavedProperties().then((p) => { setProperties(p); setLoading(false); });
   }, []);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (navigator.vibrate) navigator.vibrate(10);
-    deleteProperty(id);
-    setProperties(getSavedProperties());
+    await deleteProperty(id);
+    const updated = await getSavedProperties();
+    setProperties(updated);
   };
 
   return (
     <div className="min-h-screen bg-lens-bg pb-20">
-      {/* Header */}
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-lens-border/50" style={{ paddingTop: "env(safe-area-inset-top, 12px)" }}>
         <div className="flex items-center justify-between px-4 py-3 max-w-lg mx-auto">
           <button onClick={onBack} className="flex items-center gap-1 text-lens-accent" type="button">
@@ -38,7 +39,11 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
       </div>
 
       <div className="px-4 py-4 max-w-lg mx-auto">
-        {properties.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-16">
+            <p className="text-lens-secondary text-sm">Loading…</p>
+          </div>
+        ) : properties.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 rounded-full bg-lens-accent/10 flex items-center justify-center mx-auto mb-4">
               <MapPin className="w-7 h-7 text-lens-accent/50" />
@@ -54,7 +59,6 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
             {properties.map((prop) => (
               <div key={prop.id} className="bg-lens-card rounded-2xl shadow-card overflow-hidden active:scale-[0.98] transition-transform">
                 <div className="flex">
-                  {/* Thumbnail */}
                   <div onClick={() => setViewing(prop)} className="w-24 h-24 flex-shrink-0 bg-slate-200 cursor-pointer">
                     {(prop.thumbnailUrl || prop.photoUrl) ? (
                       <img src={prop.thumbnailUrl || prop.photoUrl!} alt="" className="w-full h-full object-cover" />
@@ -64,23 +68,17 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
                       </div>
                     )}
                   </div>
-
-                  {/* Info */}
                   <div className="flex-1 p-3 flex flex-col justify-between min-w-0 cursor-pointer" onClick={() => setViewing(prop)}>
                     <div>
                       <p className="text-[14px] font-semibold text-lens-text leading-tight line-clamp-2">{prop.address}</p>
                       {prop.latitude && (
-                        <p className="text-[11px] text-lens-secondary mt-1">
-                          {prop.latitude.toFixed(4)}° N, {Math.abs(prop.longitude || 0).toFixed(4)}° W
-                        </p>
+                        <p className="text-[11px] text-lens-secondary mt-1">{prop.latitude.toFixed(4)}° N, {Math.abs(prop.longitude || 0).toFixed(4)}° W</p>
                       )}
                     </div>
                     <p className="text-[10px] text-lens-secondary">
                       {new Date(prop.savedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
                     </p>
                   </div>
-
-                  {/* Delete */}
                   <div className="flex items-center pr-3">
                     <button onClick={(e) => { e.stopPropagation(); handleDelete(prop.id); }} className="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center active:scale-90 transition-transform" type="button">
                       <Trash2 className="w-4 h-4 text-red-400" />
@@ -93,10 +91,8 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
         )}
       </div>
 
-      {/* Full photo detail view */}
       {viewing && (
         <div className="fixed inset-0 z-[60] bg-black flex flex-col" onClick={() => setViewing(null)}>
-          {/* Close button */}
           <div className="absolute top-0 inset-x-0 z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,12px)] pb-2">
             <button onClick={() => setViewing(null)} className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center" type="button">
               <X className="w-5 h-5 text-white" />
@@ -105,8 +101,6 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
               Load Property
             </button>
           </div>
-
-          {/* Photo */}
           <div className="flex-1 flex items-center justify-center">
             {viewing.photoUrl ? (
               <img src={viewing.photoUrl} alt="" className="w-full h-full object-contain" />
@@ -117,8 +111,6 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
               </div>
             )}
           </div>
-
-          {/* Address bar at bottom */}
           <div className="bg-black/80 backdrop-blur-xl px-5 py-4" style={{ paddingBottom: "env(safe-area-inset-bottom, 16px)" }}>
             <p className="text-white font-semibold text-[15px]">{viewing.address}</p>
             <p className="text-white/50 text-[12px] mt-1">
