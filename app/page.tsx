@@ -185,7 +185,7 @@ export default function HomePage() {
           </InfoCard>
         </div>
 
-        <div className="animate-slide-up delay-2"><OwnerCard /></div>
+        <div className="animate-slide-up delay-2"><OwnerCard address={displayAddress} /></div>
 
         <div className="animate-slide-up delay-3 flex gap-3">
           <button onClick={savePropertyAction} disabled={saving}
