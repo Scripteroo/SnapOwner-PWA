@@ -4,6 +4,7 @@ export interface SavedProperty {
     latitude: number | null;
     longitude: number | null;
     photoUrl: string | null;
+    thumbnailUrl: string | null;
     savedAt: string;
   }
   
@@ -27,7 +28,15 @@ export interface SavedProperty {
     };
     const all = getSavedProperties();
     all.unshift(saved);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+    } catch (e) {
+      // If storage is full, try without the full photo (keep thumbnail)
+      console.warn("Storage full, saving without full photo:", e);
+      saved.photoUrl = null;
+      const retry = [saved, ...all.slice(1)];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(retry));
+    }
     return saved;
   }
   
