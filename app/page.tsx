@@ -217,10 +217,11 @@ export default function HomePage() {
               )}
             </p>
             {geo.latitude && (
-              <p className="text-[11px] text-lens-secondary mt-1">
-                {geo.latitude.toFixed(4)}° N, {Math.abs(geo.longitude!).toFixed(4)}° W
-              </p>
-            )}
+  <p className="text-[11px] text-lens-secondary mt-1">
+    {geo.latitude.toFixed(6)}° N, {Math.abs(geo.longitude!).toFixed(6)}° W
+    {geo.accuracy && <span className="ml-1.5 text-lens-accent/60">±{Math.round(geo.accuracy)}m</span>}
+  </p>
+)}
           </InfoCard>
         </div>
 

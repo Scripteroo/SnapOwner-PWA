@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 interface GeoState {
   latitude: number | null;
   longitude: number | null;
+  accuracy: number | null;
   address: string | null;
   loading: boolean;
   error: string | null;
@@ -12,13 +13,16 @@ interface GeoState {
 
 export function useGeolocation() {
   const [state, setState] = useState<GeoState>({
-    latitude: null, longitude: null, address: null, loading: true, error: null,
+    latitude: null, longitude: null, accuracy: null, address: null, loading: true, error: null,
   });
+  const watchRef = useRef<number | null>(null);
+  const bestRef = useRef<{ lat: number; lng: number; acc: number } | null>(null);
+  const resolvedRef = useRef(false);
 
   const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&zoom=18`,
         { headers: { "Accept-Language": "en" } }
       );
       const data = await res.json();
@@ -43,29 +47,84 @@ export function useGeolocation() {
     } catch (e) {
       console.warn("BigDataCloud failed:", e);
     }
-    return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
   }, []);
 
-  const requestLocation = useCallback(async () => {
+  const finalize = useCallback(async (lat: number, lng: number, acc: number) => {
+    if (resolvedRef.current) return;
+    resolvedRef.current = true;
+    if (watchRef.current !== null) {
+      navigator.geolocation.clearWatch(watchRef.current);
+      watchRef.current = null;
+    }
+    const address = await reverseGeocode(lat, lng);
+    setState({ latitude: lat, longitude: lng, accuracy: acc, address, loading: false, error: null });
+  }, [reverseGeocode]);
+
+  const requestLocation = useCallback(() => {
     setState((s) => ({ ...s, loading: true, error: null }));
+    resolvedRef.current = false;
+    bestRef.current = null;
+
     if (typeof window === "undefined" || !navigator.geolocation) {
       setState((s) => ({ ...s, loading: false, error: "Geolocation not supported" }));
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const address = await reverseGeocode(latitude, longitude);
-        setState({ latitude, longitude, address, loading: false, error: null });
+
+    // Watch position — takes multiple readings, keeps the most accurate
+    watchRef.current = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude, accuracy } = position.coords;
+        const current = bestRef.current;
+
+        // Keep this reading if it's more accurate than what we have
+        if (!current || accuracy < current.acc) {
+          bestRef.current = { lat: latitude, lng: longitude, acc: accuracy };
+        }
+
+        // If accuracy is under 10 meters, that's great — use it immediately
+        if (accuracy <= 10) {
+          finalize(latitude, longitude, accuracy);
+        }
       },
       (err) => {
-        setState((s) => ({ ...s, loading: false, error: err.message || "Location access denied" }));
+        // If we have any reading at all, use it
+        if (bestRef.current) {
+          finalize(bestRef.current.lat, bestRef.current.lng, bestRef.current.acc);
+        } else {
+          setState((s) => ({ ...s, loading: false, error: err.message || "Location access denied" }));
+        }
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
-  }, [reverseGeocode]);
 
-  useEffect(() => { requestLocation(); }, [requestLocation]);
+    // After 4 seconds, use whatever best reading we have
+    setTimeout(() => {
+      if (!resolvedRef.current && bestRef.current) {
+        finalize(bestRef.current.lat, bestRef.current.lng, bestRef.current.acc);
+      }
+    }, 4000);
+
+    // Hard cutoff at 10 seconds
+    setTimeout(() => {
+      if (!resolvedRef.current) {
+        if (bestRef.current) {
+          finalize(bestRef.current.lat, bestRef.current.lng, bestRef.current.acc);
+        } else {
+          setState((s) => ({ ...s, loading: false, error: "Could not determine location" }));
+        }
+      }
+    }, 10000);
+  }, [finalize]);
+
+  useEffect(() => {
+    requestLocation();
+    return () => {
+      if (watchRef.current !== null) {
+        navigator.geolocation.clearWatch(watchRef.current);
+      }
+    };
+  }, [requestLocation]);
 
   return { ...state, requestLocation };
 }
