@@ -10,9 +10,11 @@ import AccordionSection from "@/components/AccordionSection";
 import BottomNav from "@/components/BottomNav";
 import AddressEditor from "@/components/AddressEditor";
 import SideMenu from "@/components/SideMenu";
+import PropertiesList from "@/components/PropertiesList";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useCamera } from "@/hooks/useCamera";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { saveProperty as saveToLocal, getPropertyCount, SavedProperty } from "@/lib/storage";
 import { MOCK_SALES_HISTORY, MOCK_TAX_HISTORY, MOCK_LIENS, MOCK_PERMITS } from "@/lib/mock-data";
 
 export default function HomePage() {
@@ -25,6 +27,8 @@ export default function HomePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("home");
+  const [propertyCount, setPropertyCount] = useState(0);
 
   const displayAddress = manualAddress
     ? manualAddress
@@ -38,6 +42,10 @@ export default function HomePage() {
   };
 
   useEffect(() => {
+    setPropertyCount(getPropertyCount());
+  }, []);
+
+  useEffect(() => {
     if (camera.photoUrl) showToast("Photo captured!");
   }, [camera.photoUrl]);
 
@@ -47,25 +55,29 @@ export default function HomePage() {
     showToast("Address updated!");
   };
 
+  const handleSelectProperty = (prop: SavedProperty) => {
+    setManualAddress(prop.address);
+    if (prop.photoUrl) camera.setPhotoUrl(prop.photoUrl);
+    setActiveTab("home");
+    showToast("Property loaded!");
+  };
+
+  const handleNewSearch = () => {
+    setManualAddress(null);
+    camera.setPhotoUrl(null);
+    geo.requestLocation();
+    showToast("Ready for new property!");
+  };
+
   const saveToDevice = useCallback(async () => {
     if (navigator.vibrate) navigator.vibrate(10);
 
-    const propertyData = {
-      address: displayAddress,
-      latitude: geo.latitude,
-      longitude: geo.longitude,
-      photo: camera.photoUrl ? "(photo attached)" : null,
-      savedAt: new Date().toISOString(),
-    };
-
-    // Try native share (works great on iOS — can save to Notes, Files, etc.)
     if (navigator.share) {
       try {
         const text = `HouseLens Property\n\n📍 ${displayAddress}\n📐 ${geo.latitude?.toFixed(4)}° N, ${Math.abs(geo.longitude || 0).toFixed(4)}° W\n\n💰 Sales History:\n${MOCK_SALES_HISTORY.map(s => `  ${s.date} — ${s.price} (${s.buyer})`).join("\n")}\n\n🏛 Tax History:\n${MOCK_TAX_HISTORY.map(t => `  ${t.year} — Assessed: ${t.assessed}, Tax: ${t.tax}`).join("\n")}`;
 
         const shareData: ShareData = { title: `Property: ${displayAddress}`, text };
 
-        // If we have a photo, try to share it as a file
         if (camera.photoUrl) {
           try {
             const res = await fetch(camera.photoUrl);
@@ -78,17 +90,14 @@ export default function HomePage() {
         }
 
         await navigator.share(shareData);
-        showToast("Saved!");
+        showToast("Shared!");
         return;
       } catch (e) {
-        // User cancelled share — that's fine
         if ((e as Error).name === "AbortError") return;
       }
     }
 
-    // Fallback: download as text file
-    const text = `HouseLens Property Report\n\nAddress: ${displayAddress}\nCoordinates: ${geo.latitude?.toFixed(4)}° N, ${Math.abs(geo.longitude || 0).toFixed(4)}° W\nSaved: ${new Date().toLocaleString()}\n\nSales History:\n${MOCK_SALES_HISTORY.map(s => `  ${s.date} — ${s.price} (${s.buyer})`).join("\n")}\n\nTax History:\n${MOCK_TAX_HISTORY.map(t => `  ${t.year} — Assessed: ${t.assessed}, Tax: ${t.tax}`).join("\n")}`;
-
+    const text = `HouseLens Property Report\n\nAddress: ${displayAddress}\nCoordinates: ${geo.latitude?.toFixed(4)}° N, ${Math.abs(geo.longitude || 0).toFixed(4)}° W\nSaved: ${new Date().toLocaleString()}`;
     const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -99,10 +108,20 @@ export default function HomePage() {
     showToast("Report downloaded!");
   }, [displayAddress, geo.latitude, geo.longitude, camera.photoUrl]);
 
-  const saveProperty = useCallback(async () => {
+  const savePropertyAction = useCallback(async () => {
     if (navigator.vibrate) navigator.vibrate(15);
     setSaving(true);
     try {
+      // Save to localStorage (always works)
+      saveToLocal({
+        address: displayAddress,
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+        photoUrl: camera.photoUrl,
+      });
+      setPropertyCount(getPropertyCount());
+
+      // Also save to Supabase if configured
       if (isSupabaseConfigured) {
         const { data: authData } = await supabase.auth.getSession();
         if (!authData.session) {
@@ -115,9 +134,10 @@ export default function HomePage() {
           photo_url: camera.photoUrl || null,
         });
       }
+
       setSaved(true);
       if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
-      showToast("Property saved successfully!");
+      showToast("Property saved!");
       setTimeout(() => setSaved(false), 2500);
     } catch (err) {
       console.error("Save failed:", err);
@@ -128,6 +148,24 @@ export default function HomePage() {
       setSaving(false);
     }
   }, [displayAddress, geo.latitude, geo.longitude, camera.photoUrl]);
+
+  const handleTabChange = (tab: string) => {
+    if (tab === "share") {
+      saveToDevice();
+      return;
+    }
+    setActiveTab(tab);
+  };
+
+  // Properties view
+  if (activeTab === "properties") {
+    return (
+      <>
+        <PropertiesList onBack={() => setActiveTab("home")} onSelectProperty={handleSelectProperty} />
+        <BottomNav active="properties" onTabChange={handleTabChange} propertyCount={propertyCount} />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-lens-bg pb-24">
@@ -194,7 +232,7 @@ export default function HomePage() {
         {/* Action Buttons */}
         <div className="animate-slide-up delay-3 flex gap-3">
           <button
-            onClick={saveProperty}
+            onClick={savePropertyAction}
             disabled={saving}
             className={`flex-1 py-3.5 rounded-2xl text-[15px] font-semibold transition-all duration-300 active:scale-[0.97] disabled:opacity-70 ${
               saved
@@ -301,7 +339,7 @@ export default function HomePage() {
         onSave={handleAddressSave}
       />
 
-      <BottomNav active="home" />
+      <BottomNav active="home" onTabChange={handleTabChange} propertyCount={propertyCount} />
     </div>
   );
 }

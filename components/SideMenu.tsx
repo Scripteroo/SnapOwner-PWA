@@ -1,10 +1,14 @@
 "use client";
 
-import { X, Search, Info, Mail } from "lucide-react";
+import { X, Search, Info, Mail, PlusCircle } from "lucide-react";
 
-interface Props { open: boolean; onClose: () => void; }
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onNewSearch?: () => void;
+}
 
-export default function SideMenu({ open, onClose }: Props) {
+export default function SideMenu({ open, onClose, onNewSearch }: Props) {
   return (
     <>
       {open && <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm" onClick={onClose} />}
@@ -16,7 +20,11 @@ export default function SideMenu({ open, onClose }: Props) {
           </button>
         </div>
         <div className="px-3 mt-2">
-          {[{ icon: Search, label: "New Search" }, { icon: Info, label: "About" }, { icon: Mail, label: "Contact" }].map(({ icon: Icon, label }) => (
+          <button onClick={() => { onNewSearch?.(); onClose(); }} className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-accent font-semibold hover:bg-lens-accent/5 active:bg-lens-accent/10 transition-colors" type="button">
+            <PlusCircle className="w-5 h-5" />
+            <span className="text-[15px]">New Property</span>
+          </button>
+          {[{ icon: Info, label: "About" }, { icon: Mail, label: "Contact" }].map(({ icon: Icon, label }) => (
             <button key={label} className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors" type="button">
               <Icon className="w-5 h-5 text-lens-secondary" />
               <span className="text-[15px] font-medium">{label}</span>
