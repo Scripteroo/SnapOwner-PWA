@@ -20,6 +20,18 @@ export function useGeolocation() {
   const resolvedRef = useRef(false);
 
   const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
+    // Try Google Geocoding API first (server-side proxy)
+    try {
+      const res = await fetch(`/api/geocode?lat=${lat}&lng=${lng}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.formatted) return data.formatted;
+      }
+    } catch (e) {
+      console.warn("Google Geocoding failed, falling back:", e);
+    }
+
+    // Fallback to Nominatim
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&zoom=18`,
@@ -39,14 +51,7 @@ export function useGeolocation() {
     } catch (e) {
       console.warn("Nominatim failed:", e);
     }
-    try {
-      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
-      const data = await res.json();
-      const parts = [data.locality || "", data.city || "", data.principalSubdivision || "", data.postcode || ""].filter(Boolean);
-      if (parts.length > 0) return parts.join(", ");
-    } catch (e) {
-      console.warn("BigDataCloud failed:", e);
-    }
+
     return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
   }, []);
 
@@ -71,24 +76,18 @@ export function useGeolocation() {
       return;
     }
 
-    // Watch position — takes multiple readings, keeps the most accurate
     watchRef.current = navigator.geolocation.watchPosition(
       (position) => {
         const { latitude, longitude, accuracy } = position.coords;
         const current = bestRef.current;
-
-        // Keep this reading if it's more accurate than what we have
         if (!current || accuracy < current.acc) {
           bestRef.current = { lat: latitude, lng: longitude, acc: accuracy };
         }
-
-        // If accuracy is under 10 meters, that's great — use it immediately
         if (accuracy <= 10) {
           finalize(latitude, longitude, accuracy);
         }
       },
       (err) => {
-        // If we have any reading at all, use it
         if (bestRef.current) {
           finalize(bestRef.current.lat, bestRef.current.lng, bestRef.current.acc);
         } else {
@@ -98,14 +97,12 @@ export function useGeolocation() {
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
 
-    // After 4 seconds, use whatever best reading we have
     setTimeout(() => {
       if (!resolvedRef.current && bestRef.current) {
         finalize(bestRef.current.lat, bestRef.current.lng, bestRef.current.acc);
       }
     }, 4000);
 
-    // Hard cutoff at 10 seconds
     setTimeout(() => {
       if (!resolvedRef.current) {
         if (bestRef.current) {
