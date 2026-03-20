@@ -65,13 +65,20 @@ export default function HomePage() {
   useEffect(() => { getPropertyCount().then(setPropertyCount); }, []);
   useEffect(() => { getCreditState().then((s) => setLookupCount(s.freeLookupsUsed)); }, []);
 
-  // Trigger lookup when photo is captured
-  useEffect(() => {
-    if (camera.photoUrl && !realieData && !lookupBlocked) {
-      setShouldLookup(true);
-      showToast("Photo captured! Looking up property…");
-    }
-  }, [camera.photoUrl]);
+ // Trigger lookup when photo is captured
+ useEffect(() => {
+  if (camera.photoUrl && !realieData && !lookupBlocked) {
+    setShouldLookup(true);
+    showToast("Photo captured! Looking up property…");
+  }
+}, [camera.photoUrl]);
+
+// Auto-save when Realie data loads after a photo capture
+useEffect(() => {
+  if (realieData && camera.photoUrl && !saved) {
+    savePropertyAction();
+  }
+}, [realieData]);
 
   const handleLookupStarted = useCallback(async () => {
     const result = await incrementLookup();
