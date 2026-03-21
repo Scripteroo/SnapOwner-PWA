@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lock, Loader2, User, Home, DollarSign, FileText, Landmark, MapPin, Building2 } from "lucide-react";
+import { Lock, Loader2, User, Home, DollarSign, FileText, Landmark, MapPin, Building2, Phone, Mail } from "lucide-react";
 import { lookupProperty, RealieProperty } from "@/lib/realie";
+import { skipTrace, SkipTraceResult } from "@/lib/skiptrace";
 
 interface Props {
   address: string;
@@ -22,6 +23,13 @@ function formatDate(val?: string | null) {
   const d = val.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
   try { return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }); }
   catch { return val; }
+}
+
+function formatPhone(num: string) {
+  const digits = num.replace(/\D/g, "");
+  if (digits.length === 10) return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  if (digits.length === 11 && digits[0] === "1") return `(${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
+  return num;
 }
 
 function DataRow({ label, value }: { label: string; value?: string | number | boolean | null }) {
@@ -47,12 +55,26 @@ function Section({ title, icon, children }: { title: string; icon: React.ReactNo
   );
 }
 
+function parseAddressParts(fullAddress: string) {
+  const parts = fullAddress.split(",").map(s => s.trim());
+  const street = parts[0] || "";
+  const city = parts[1] || "";
+  const stateZip = parts[2] || "";
+  const stateMatch = stateZip.match(/([A-Z]{2})/);
+  const state = stateMatch ? stateMatch[1] : "";
+  const zipMatch = stateZip.match(/(\d{5})/);
+  const zip = zipMatch ? zipMatch[1] : "";
+  return { street, city, state, zip };
+}
+
 export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupStarted, triggerLookup }: Props) {
   const [loading, setLoading] = useState(false);
   const [property, setProperty] = useState<RealieProperty | null>(cachedData || null);
   const [error, setError] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(!!cachedData);
   const [hasTriggered, setHasTriggered] = useState(false);
+  const [skipTraceData, setSkipTraceData] = useState<SkipTraceResult | null>(null);
+  const [skipTraceLoading, setSkipTraceLoading] = useState(false);
 
   useEffect(() => {
     if (cachedData) {
@@ -63,10 +85,10 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
       setProperty(null);
       setUnlocked(false);
       setHasTriggered(false);
+      setSkipTraceData(null);
     }
   }, [cachedData]);
 
-  // Only trigger lookup when explicitly told to (after photo capture)
   useEffect(() => {
     if (triggerLookup && !hasTriggered && !unlocked && address && !address.includes("Detecting")) {
       setHasTriggered(true);
@@ -80,6 +102,21 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
             setProperty(result);
             setUnlocked(true);
             onDataLoaded?.(result);
+
+            // Auto-trigger skip trace
+            if (result.ownerName) {
+              setSkipTraceLoading(true);
+              const parsed = parseAddressParts(address);
+              const st = await skipTrace(
+                result.ownerName,
+                result.address || parsed.street,
+                result.city || parsed.city,
+                result.state || parsed.state,
+                result.zip || parsed.zip
+              );
+              setSkipTraceData(st);
+              setSkipTraceLoading(false);
+            }
           } else {
             setError("Property not found. Try editing the address.");
           }
@@ -93,7 +130,6 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
     }
   }, [triggerLookup, address, hasTriggered, unlocked]);
 
-  // UNLOCKED VIEW
   if (unlocked && property) {
     return (
       <div className="bg-lens-card rounded-2xl shadow-card overflow-hidden">
@@ -108,6 +144,45 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
         </div>
 
         <div className="px-5 py-4">
+          {skipTraceLoading ? (
+            <div className="mb-5 p-4 rounded-xl bg-lens-accent/[0.03] border border-lens-accent/10">
+              <div className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-lens-accent" />
+                <p className="text-[13px] text-lens-accent font-medium">Finding contact information…</p>
+              </div>
+            </div>
+          ) : skipTraceData && (skipTraceData.phones.length > 0 || skipTraceData.emails.length > 0) ? (
+            <Section title="Contact Info" icon={<Phone className="w-3.5 h-3.5 text-lens-accent" />}>
+              {skipTraceData.phones.map((p, i) => (
+                <div key={i} className="flex justify-between items-center py-2 border-b border-lens-border/50 last:border-0">
+                  <div className="flex items-center gap-2">
+                    <Phone className={`w-3.5 h-3.5 ${p.dnc ? "text-red-400" : "text-lens-secondary"}`} />
+                    <div>
+                      <a href={`tel:${p.number}`} className="text-[14px] font-semibold text-lens-accent">
+                        {formatPhone(p.number)}
+                      </a>
+                      {p.carrier && <p className="text-[10px] text-lens-secondary">{p.carrier}</p>}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {p.dnc && <span className="text-[9px] uppercase font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">DNC</span>}
+                    {p.type && <span className="text-[10px] uppercase font-semibold text-lens-secondary bg-lens-bg px-2 py-0.5 rounded-full">{p.type}</span>}
+                  </div>
+                </div>
+              ))}
+              {skipTraceData.emails.map((e, i) => (
+                <div key={i} className="flex items-center gap-2 py-2 border-b border-lens-border/50 last:border-0">
+                  <Mail className="w-3.5 h-3.5 text-lens-secondary" />
+                  <a href={`mailto:${e.email}`} className="text-[13px] font-medium text-lens-accent">{e.email}</a>
+                </div>
+              ))}
+            </Section>
+          ) : skipTraceData ? (
+            <div className="mb-5 p-4 rounded-xl bg-amber-50 border border-amber-200">
+              <p className="text-[12px] text-amber-700 font-medium">No contact info found for this owner.</p>
+            </div>
+          ) : null}
+
           <Section title="Property" icon={<Home className="w-3.5 h-3.5 text-lens-accent" />}>
             <DataRow label="Address" value={property.addressFull} />
             <DataRow label="Parcel ID" value={property.parcelId} />
@@ -184,14 +259,6 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
             <DataRow label="Properties Owned" value={property.ownerParcelCount} />
           </Section>
 
-          <div className="mb-5 p-4 rounded-xl border-2 border-dashed border-lens-accent/20 bg-lens-accent/[0.02]">
-            <div className="flex items-center gap-2 mb-1">
-              <Lock className="w-4 h-4 text-lens-accent" />
-              <p className="text-[13px] font-semibold text-lens-accent">Phone & Email</p>
-            </div>
-            <p className="text-[12px] text-lens-secondary">Owner contact information available with Pro plan.</p>
-          </div>
-
           {property.legalDesc && (
             <Section title="Legal" icon={<MapPin className="w-3.5 h-3.5 text-lens-accent" />}>
               <p className="text-[11px] text-lens-secondary leading-relaxed">{property.legalDesc}</p>
@@ -202,7 +269,6 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
     );
   }
 
-  // LOADING VIEW
   if (loading) {
     return (
       <div className="bg-lens-card rounded-2xl shadow-card px-5 py-4">
@@ -215,7 +281,6 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
     );
   }
 
-  // ERROR VIEW
   if (error) {
     return (
       <div className="bg-lens-card rounded-2xl shadow-card px-5 py-4">
@@ -225,7 +290,6 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
     );
   }
 
-  // WAITING VIEW — no photo taken yet
   return (
     <div className="bg-lens-card rounded-2xl shadow-card px-5 py-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-lens-secondary mb-1.5">Owner</p>
