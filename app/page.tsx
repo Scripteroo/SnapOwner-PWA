@@ -292,20 +292,13 @@ useEffect(() => {
 
         {!lookupBlocked && (
           <div className="animate-slide-up delay-2">
-            {!geo.isUSA && geo.address ? (
-              <div className="bg-lens-card rounded-2xl shadow-card px-5 py-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-lens-secondary mb-1.5">Owner</p>
-                <p className="text-[13px] text-amber-600 font-medium">Property lookups are currently available for US addresses only.</p>
-              </div>
-            ) : (
-              <OwnerCard
-                address={displayAddress}
-                cachedData={realieData}
-                onDataLoaded={(data) => setRealieData(data)}
-                onLookupStarted={handleLookupStarted}
-                triggerLookup={shouldLookup}
-              />
-            )}
+            <OwnerCard
+              address={displayAddress}
+              cachedData={realieData}
+              onDataLoaded={(data) => setRealieData(data)}
+              onLookupStarted={handleLookupStarted}
+              triggerLookup={shouldLookup}
+            />
           </div>
         )}
 
