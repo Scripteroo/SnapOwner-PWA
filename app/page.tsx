@@ -254,6 +254,21 @@ useEffect(() => {
   const handleTabChange = (tab: string) => {
     if (tab === "share") { saveToDevice(); return; }
     if (tab === "properties") { getPropertyCount().then(setPropertyCount); }
+    if (tab === "home" && activeTab === "home") {
+      setManualAddress(null);
+      setRealieData(null);
+      setSkipTraceData(null);
+      camera.setPhotoUrl(null);
+      camera.setThumbnailUrl(null);
+      setShouldLookup(false);
+      setLookupBlocked(false);
+      setSaved(false);
+      setPropertyComplete(false);
+      setLoadedFromLibrary(false);
+      geo.requestLocation();
+      showToast("Refreshing location...");
+      return;
+    }
     setActiveTab(tab);
   };
 
