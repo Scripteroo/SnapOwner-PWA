@@ -51,7 +51,7 @@ export default function SideMenu({ open, onClose, onNewSearch }: Props) {
           <p className="text-[9px] text-lens-secondary text-center leading-relaxed mb-3">
             HouseLens is not a consumer reporting agency under the FCRA. Data provided is not a &quot;consumer report&quot; and may not be used for credit, employment, insurance, or tenant screening decisions.
           </p>
-          <p className="text-[11px] text-lens-secondary text-center">HouseLens v0.2 · PoC</p>
+          <p className="text-[11px] text-lens-secondary text-center">HouseLens v1.0</p>
         </div>
       </div>
     </>
