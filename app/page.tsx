@@ -60,6 +60,8 @@ export default function HomePage() {
   const [propertyComplete, setPropertyComplete] = useState(false);
   const [loadedFromLibrary, setLoadedFromLibrary] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [lastRefreshCoords, setLastRefreshCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [editPulse, setEditPulse] = useState(false);
 
   // Detect if running as installed PWA + onboarding check
   useEffect(() => {
@@ -412,12 +414,27 @@ useEffect(() => {
                   <p className="text-[10px] text-lens-accent/60 mt-2 font-medium">Tap to edit</p>
                 </div>
                 <div className="flex flex-col gap-1.5 flex-shrink-0 mt-0.5">
-                  <button onClick={() => { if (navigator.vibrate) navigator.vibrate(10); setEditingAddress(true); }} className="w-9 h-9 rounded-xl bg-lens-bg flex items-center justify-center active:scale-90 transition-all duration-150 hover:bg-lens-accent/10" type="button">
-                    <Pencil className="w-4 h-4 text-lens-secondary" />
+                  <button onClick={() => { if (navigator.vibrate) navigator.vibrate(10); setEditingAddress(true); }} className={`w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-all duration-150 hover:bg-lens-accent/10 ${editPulse ? "bg-lens-accent/20 animate-pulse" : "bg-lens-bg"}`} type="button">
+                    <Pencil className={`w-4 h-4 ${editPulse ? "text-lens-accent" : "text-lens-secondary"}`} />
                   </button>
                   <button
                     onClick={() => {
                       if (navigator.vibrate) navigator.vibrate(10);
+                      // Check if we're at the same spot as last refresh
+                      if (lastRefreshCoords && geo.latitude && geo.longitude) {
+                        const dLat = (geo.latitude - lastRefreshCoords.lat) * 111320;
+                        const dLng = (geo.longitude - lastRefreshCoords.lng) * 111320 * Math.cos(geo.latitude * Math.PI / 180);
+                        const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+                        if (dist < 15) {
+                          showToast("Same location detected. Tap the pencil icon to edit the address manually.");
+                          setEditPulse(true);
+                          setTimeout(() => setEditPulse(false), 1500);
+                          return;
+                        }
+                      }
+                      if (geo.latitude && geo.longitude) {
+                        setLastRefreshCoords({ lat: geo.latitude, lng: geo.longitude });
+                      }
                       setManualAddress(null);
                       setRealieData(null);
                       setSkipTraceData(null);
