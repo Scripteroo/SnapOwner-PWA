@@ -90,15 +90,11 @@ export default function HomePage() {
   useEffect(() => { getPropertyCount().then(setPropertyCount); }, []);
   useEffect(() => { getCreditState().then((s) => setLookupCount(s.freeLookupsUsed)); }, []);
 
- // Trigger lookup when photo is captured (US only)
+ // Trigger lookup when photo is captured
  useEffect(() => {
   if (camera.photoUrl && !realieData && !lookupBlocked) {
-    if (geo.isUSA) {
-      setShouldLookup(true);
-      showToast("Photo captured! Looking up property…");
-    } else {
-      showToast("Photo captured!");
-    }
+    setShouldLookup(true);
+    showToast("Photo captured! Looking up property…");
   }
 }, [camera.photoUrl]);
 
@@ -423,7 +419,6 @@ useEffect(() => {
               onLookupStarted={handleLookupStarted}
               triggerLookup={shouldLookup}
               isPWA={isPWA}
-              isUSA={geo.isUSA}
               onRequestInstall={handleRequestInstall}
             />
           </div>

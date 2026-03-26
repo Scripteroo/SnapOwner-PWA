@@ -16,7 +16,6 @@ interface Props {
   onLookupStarted?: () => void;
   triggerLookup?: boolean;
   isPWA?: boolean;
-  isUSA?: boolean;
   onRequestInstall?: () => void;
 }
 
@@ -78,7 +77,7 @@ function parseAddressParts(fullAddress: string) {
   return { street, city, state, zip };
 }
 
-export default function OwnerCard({ address, cachedData, cachedSkipTrace, onDataLoaded, onSkipTraceLoaded, onLookupStarted, triggerLookup, isPWA, isUSA = true, onRequestInstall }: Props) {
+export default function OwnerCard({ address, cachedData, cachedSkipTrace, onDataLoaded, onSkipTraceLoaded, onLookupStarted, triggerLookup, isPWA, onRequestInstall }: Props) {
   const { config, isFree } = useAppConfig();
   const [loading, setLoading] = useState(false);
   const [property, setProperty] = useState<RealieProperty | null>(cachedData || null);
@@ -121,7 +120,7 @@ export default function OwnerCard({ address, cachedData, cachedSkipTrace, onData
 
   // Realie lookup (property data only, no skip trace)
   useEffect(() => {
-    if (triggerLookup && !hasTriggered && !unlocked && address && !address.includes("Detecting") && isUSA) {
+    if (triggerLookup && !hasTriggered && !unlocked && address && !address.includes("Detecting")) {
       setHasTriggered(true);
       const doLookup = async () => {
         setLoading(true);
@@ -426,18 +425,6 @@ export default function OwnerCard({ address, cachedData, cachedSkipTrace, onData
       <div className="bg-lens-card rounded-2xl shadow-card px-5 py-4">
         <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-lens-secondary mb-1.5">Owner</p>
         <p className="text-[13px] text-red-500 font-medium">{error}</p>
-      </div>
-    );
-  }
-
-  if (!isUSA) {
-    return (
-      <div className="bg-lens-card rounded-2xl shadow-card px-5 py-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-lens-secondary mb-1.5">Owner</p>
-        <div className="flex items-center gap-2 py-2">
-          <MapPin className="w-4 h-4 text-amber-500" />
-          <p className="text-[13px] text-amber-600 font-medium">Property lookups are currently available for US addresses only.</p>
-        </div>
       </div>
     );
   }
