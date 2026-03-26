@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Waves, Leaf, Mountain, Sun, Users, ChevronDown, ChevronUp } from "lucide-react";
+import { Waves, Leaf, Mountain, Sun, Users, ShieldAlert, ChevronDown, ChevronUp } from "lucide-react";
 import { enrichProperty, EnrichmentData } from "@/lib/enrichment";
 
 interface Props {
   lat: number;
   lng: number;
   zip: string;
+  stateAbbrev?: string;
 }
 
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
@@ -49,7 +50,7 @@ function LoadingSkeleton() {
   );
 }
 
-export default function PropertyEnrichment({ lat, lng, zip }: Props) {
+export default function PropertyEnrichment({ lat, lng, zip, stateAbbrev }: Props) {
   const [data, setData] = useState<EnrichmentData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,14 +58,14 @@ export default function PropertyEnrichment({ lat, lng, zip }: Props) {
     let cancelled = false;
     setLoading(true);
     setData(null);
-    enrichProperty(lat, lng, zip).then((result) => {
+    enrichProperty(lat, lng, zip, stateAbbrev).then((result) => {
       if (!cancelled) {
         setData(result);
         setLoading(false);
       }
     });
     return () => { cancelled = true; };
-  }, [lat, lng, zip]);
+  }, [lat, lng, zip, stateAbbrev]);
 
   if (loading) {
     return (
@@ -77,7 +78,7 @@ export default function PropertyEnrichment({ lat, lng, zip }: Props) {
 
   if (!data) return null;
 
-  const hasAny = data.flood || data.growingZone || data.elevation || data.sun || data.census;
+  const hasAny = data.flood || data.growingZone || data.elevation || data.sun || data.census || data.crime;
   if (!hasAny) return null;
 
   return (
@@ -126,6 +127,25 @@ export default function PropertyEnrichment({ lat, lng, zip }: Props) {
             <DataRow label="College Education" value={data.census.collegeRate != null ? `${data.census.collegeRate}%` : null} />
             <DataRow label="Owner-Occupied" value={data.census.ownerOccupiedRate != null ? `${data.census.ownerOccupiedRate}%` : null} />
             <p className="text-[10px] text-lens-secondary/60 mt-2 pt-1 border-t border-lens-border/30">Source: US Census Bureau ACS 2022</p>
+          </Section>
+        )}
+
+        {data.crime && (
+          <Section title="Area Crime Statistics" icon={<ShieldAlert className="w-3.5 h-3.5 text-lens-accent" />}>
+            <div className="flex justify-between items-baseline py-1.5 border-b border-lens-border/50">
+              <span className="text-[12px] text-lens-secondary">Violent Crime Rate</span>
+              <span className={`text-[13px] font-medium text-right ml-4 ${
+                data.crime.violentCrimeRate < 400 ? "text-green-600" : data.crime.violentCrimeRate <= 600 ? "text-orange-500" : "text-red-500"
+              }`}>
+                {data.crime.violentCrimeRate.toLocaleString()} per 100K
+              </span>
+            </div>
+            <DataRow label="Property Crime Rate" value={`${data.crime.propertyCrimeRate.toLocaleString()} per 100K`} />
+            <DataRow label="Burglary Rate" value={`${data.crime.burglaryRate.toLocaleString()} per 100K`} />
+            <DataRow label="Motor Vehicle Theft" value={`${data.crime.motorVehicleTheftRate.toLocaleString()} per 100K`} />
+            <p className="text-[10px] text-lens-secondary/60 mt-2 pt-1 border-t border-lens-border/30">
+              State-level data for {data.crime.stateName}. Source: FBI UCR 2022
+            </p>
           </Section>
         )}
       </div>

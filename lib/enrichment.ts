@@ -32,12 +32,22 @@ export interface CensusData {
   ownerOccupiedRate: number | null;
 }
 
+export interface CrimeData {
+  violentCrimeRate: number;
+  propertyCrimeRate: number;
+  burglaryRate: number;
+  motorVehicleTheftRate: number;
+  stateName: string;
+  population: number;
+}
+
 export interface EnrichmentData {
   flood: FloodData | null;
   growingZone: GrowingZoneData | null;
   elevation: ElevationData | null;
   sun: SunData | null;
   census: CensusData | null;
+  crime: CrimeData | null;
 }
 
 function timeoutFetch(url: string, ms = 5000): Promise<Response> {
@@ -191,10 +201,57 @@ async function fetchCensusData(lat: number, lng: number): Promise<CensusData | n
   }
 }
 
+const STATE_NAMES: Record<string, string> = {
+  AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",
+  DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",
+  KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",
+  MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",
+  NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",
+  OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",
+  TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",
+  WI:"Wisconsin",WY:"Wyoming",DC:"District of Columbia",
+};
+
+const FBI_API_KEY = "iiHnOKfno2Mgkt5AynpvPpUQTEyxE77jo1RU8PIv";
+
+async function fetchCrimeData(stateAbbrev: string): Promise<CrimeData | null> {
+  if (!stateAbbrev || stateAbbrev.length !== 2) return null;
+  const st = stateAbbrev.toUpperCase();
+  const stateName = STATE_NAMES[st];
+  if (!stateName) return null;
+
+  try {
+    const res = await timeoutFetch(
+      `https://api.usa.gov/crime/fbi/sapi/api/estimates/states/${st}/2022/2022?API_KEY=${FBI_API_KEY}`
+    );
+    const data = await res.json();
+    const results = data?.results;
+    if (!results || results.length === 0) return null;
+
+    const r = results[0];
+    const pop = r.population;
+    if (!pop || pop <= 0) return null;
+
+    const per100k = (val: number) => Math.round((val / pop) * 100000);
+
+    return {
+      violentCrimeRate: per100k(r.violent_crime || 0),
+      propertyCrimeRate: per100k(r.property_crime || 0),
+      burglaryRate: per100k(r.burglary || 0),
+      motorVehicleTheftRate: per100k(r.motor_vehicle_theft || 0),
+      stateName,
+      population: pop,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function enrichProperty(
   lat: number,
   lng: number,
-  zip: string
+  zip: string,
+  stateAbbrev?: string
 ): Promise<EnrichmentData> {
   const results = await Promise.allSettled([
     fetchFloodZone(lat, lng),
@@ -202,6 +259,7 @@ export async function enrichProperty(
     fetchElevation(lat, lng),
     fetchSunData(lat, lng),
     fetchCensusData(lat, lng),
+    fetchCrimeData(stateAbbrev || ""),
   ]);
 
   return {
@@ -210,5 +268,6 @@ export async function enrichProperty(
     elevation: results[2].status === "fulfilled" ? results[2].value : null,
     sun: results[3].status === "fulfilled" ? results[3].value : null,
     census: results[4].status === "fulfilled" ? results[4].value : null,
+    crime: results[5].status === "fulfilled" ? results[5].value : null,
   };
 }

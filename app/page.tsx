@@ -511,6 +511,7 @@ useEffect(() => {
                   lat={geo.latitude}
                   lng={geo.longitude}
                   zip={(() => { const m = displayAddress.match(/(\d{5})/); return m ? m[1] : ""; })()}
+                  stateAbbrev={(() => { const m = displayAddress.match(/\b([A-Z]{2})\b/); return m ? m[1] : ""; })()}
                 />
               </div>
             )}
