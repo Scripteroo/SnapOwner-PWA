@@ -1,6 +1,7 @@
 "use client";
 
-import { X, Search, Info, Mail, PlusCircle } from "lucide-react";
+import { X, Info, Mail, PlusCircle, FileText, Shield, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 interface Props {
   open: boolean;
@@ -24,14 +25,32 @@ export default function SideMenu({ open, onClose, onNewSearch }: Props) {
             <PlusCircle className="w-5 h-5" />
             <span className="text-[15px]">New Property</span>
           </button>
-          {[{ icon: Info, label: "About" }, { icon: Mail, label: "Contact" }].map(({ icon: Icon, label }) => (
-            <button key={label} className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors" type="button">
-              <Icon className="w-5 h-5 text-lens-secondary" />
-              <span className="text-[15px] font-medium">{label}</span>
-            </button>
-          ))}
+
+          <Link href="/terms" onClick={onClose} className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors">
+            <FileText className="w-5 h-5 text-lens-secondary" />
+            <span className="text-[15px] font-medium">Terms of Service</span>
+          </Link>
+
+          <Link href="/privacy" onClick={onClose} className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors">
+            <Shield className="w-5 h-5 text-lens-secondary" />
+            <span className="text-[15px] font-medium">Privacy Policy</span>
+          </Link>
+
+          <a href="mailto:support@houselens.io" className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors">
+            <Mail className="w-5 h-5 text-lens-secondary" />
+            <span className="text-[15px] font-medium">Contact Support</span>
+          </a>
+
+          <a href="mailto:abuse@houselens.io" className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors">
+            <AlertTriangle className="w-5 h-5 text-lens-secondary" />
+            <span className="text-[15px] font-medium">Report Misuse</span>
+          </a>
         </div>
+
         <div className="absolute bottom-8 inset-x-0 px-5">
+          <p className="text-[9px] text-lens-secondary text-center leading-relaxed mb-3">
+            HouseLens is not a consumer reporting agency under the FCRA. Data provided is not a &quot;consumer report&quot; and may not be used for credit, employment, insurance, or tenant screening decisions.
+          </p>
           <p className="text-[11px] text-lens-secondary text-center">HouseLens v0.2 · PoC</p>
         </div>
       </div>

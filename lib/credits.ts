@@ -2,6 +2,27 @@ const DB_NAME = "houselens_db";
 const CREDITS_STORE = "credits";
 const DB_VERSION = 3;
 
+function isDevMode(): boolean {
+  if (typeof window === "undefined") return false;
+  try { return localStorage.getItem("hl_dev") === "1"; } catch { return false; }
+}
+
+let _remoteConfigCache: { skipCreditGates: boolean; skipLookupGates: boolean; ts: number } | null = null;
+
+async function getRemoteFlags(): Promise<{ skipCreditGates: boolean; skipLookupGates: boolean }> {
+  if (_remoteConfigCache && Date.now() - _remoteConfigCache.ts < 5 * 60 * 1000) {
+    return _remoteConfigCache;
+  }
+  try {
+    const res = await fetch("/api/config");
+    const data = await res.json();
+    _remoteConfigCache = { skipCreditGates: data.skipCreditGates, skipLookupGates: data.skipLookupGates, ts: Date.now() };
+    return _remoteConfigCache;
+  } catch {
+    return { skipCreditGates: false, skipLookupGates: false };
+  }
+}
+
 interface CreditState {
   id: string;
   freeLookupsUsed: number;
@@ -70,6 +91,14 @@ export async function updateCreditState(updates: Partial<CreditState>): Promise<
 }
 
 export async function incrementLookup(): Promise<{ allowed: boolean; count: number; needsNag: boolean; forceNag: boolean }> {
+  if (isDevMode()) {
+    return { allowed: true, count: 0, needsNag: false, forceNag: false };
+  }
+  const flags = await getRemoteFlags();
+  if (flags.skipLookupGates) {
+    return { allowed: true, count: 0, needsNag: false, forceNag: false };
+  }
+
   const state = await getCreditState();
 
   if (state.hasUnlimitedLookups) {
@@ -127,6 +156,10 @@ export async function grantLookupsForShare(contactCount: number): Promise<number
 }
 
 export async function useSkipTraceCredit(): Promise<boolean> {
+  if (isDevMode()) return true;
+  const flags = await getRemoteFlags();
+  if (flags.skipCreditGates) return true;
+
   const state = await getCreditState();
   if (state.skipTraceCredits <= 0) return false;
   await updateCreditState({ skipTraceCredits: state.skipTraceCredits - 1 });

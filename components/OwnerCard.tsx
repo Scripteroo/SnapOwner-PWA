@@ -5,6 +5,7 @@ import { Loader2, User, Home, DollarSign, FileText, Landmark, MapPin, Building2,
 import { lookupProperty, RealieProperty } from "@/lib/realie";
 import { skipTrace, SkipTraceResult } from "@/lib/skiptrace";
 import { useSkipTraceCredit, getCreditState, grantSkipTraceCredits } from "@/lib/credits";
+import { useAppConfig } from "@/hooks/useAppConfig";
 
 interface Props {
   address: string;
@@ -75,6 +76,7 @@ function parseAddressParts(fullAddress: string) {
 }
 
 export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupStarted, triggerLookup, isPWA, onRequestInstall }: Props) {
+  const { config, isFree } = useAppConfig();
   const [loading, setLoading] = useState(false);
   const [property, setProperty] = useState<RealieProperty | null>(cachedData || null);
   const [error, setError] = useState<string | null>(null);
@@ -137,17 +139,20 @@ export default function OwnerCard({ address, cachedData, onDataLoaded, onLookupS
   const handleSkipTrace = async () => {
     if (!property) return;
 
-    // Check if PWA is installed
-    if (!isPWA) {
-      onRequestInstall?.();
-      return;
-    }
+    // In free mode, skip all credit gates
+    if (!isFree) {
+      // Check if PWA is installed
+      if (!isPWA) {
+        onRequestInstall?.();
+        return;
+      }
 
-    // Check credits
-    const hasCredit = await useSkipTraceCredit();
-    if (!hasCredit) {
-      setShowShareGate(true);
-      return;
+      // Check credits
+      const hasCredit = await useSkipTraceCredit();
+      if (!hasCredit) {
+        setShowShareGate(true);
+        return;
+      }
     }
 
     setSkipTraceLoading(true);
