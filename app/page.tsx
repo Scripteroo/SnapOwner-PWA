@@ -12,6 +12,7 @@ import BottomNav from "@/components/BottomNav";
 import AddressEditor from "@/components/AddressEditor";
 import SideMenu from "@/components/SideMenu";
 import PropertiesList from "@/components/PropertiesList";
+import SettingsPage from "@/components/SettingsPage";
 import NagScreen from "@/components/NagScreen";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useCamera } from "@/hooks/useCamera";
@@ -285,6 +286,15 @@ useEffect(() => {
   const hasRealTax = !!taxData;
   const hasRealLiens = realieData && realieData.totalLienCount !== undefined && realieData.totalLienCount !== null;
   const lastSale = realieData?.transferPrice ? { date: realieData.transferDate, price: realieData.transferPrice } : null;
+
+  if (activeTab === "settings") {
+    return (
+      <>
+        <SettingsPage onBack={() => setActiveTab("home")} />
+        <BottomNav active="settings" onTabChange={handleTabChange} propertyCount={propertyCount} />
+      </>
+    );
+  }
 
   if (activeTab === "properties") {
     return (
