@@ -113,6 +113,7 @@ export default function HomePage() {
  useEffect(() => {
   if (camera.photoUrl && !realieData && !lookupBlocked) {
     setShouldLookup(true);
+    setLoadedFromLibrary(false);
     showToast("Photo captured! Looking up property…");
   }
 }, [camera.photoUrl]);
@@ -396,6 +397,23 @@ useEffect(() => {
               style={{ background: "transparent" }}
             >
               <img src="/geo-icon.png" alt="Next Property" className="w-[120px] h-[120px] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]" draggable={false} />
+            </button>
+          </div>
+        </div>
+      ) : loadedFromLibrary ? (
+        <div className="flex justify-center -mt-14 relative z-20">
+          <div className="relative w-[120px] h-[120px]">
+            <div
+              className="absolute rounded-full bg-blue-400/20 animate-ping"
+              style={{ animationDuration: "3s", top: -4, left: -4, width: 108, height: 108 }}
+            />
+            <button
+              onClick={saveToDevice}
+              type="button"
+              className="relative w-[120px] h-[120px] flex items-center justify-center active:scale-95 transition-transform"
+              style={{ background: "transparent" }}
+            >
+              <img src="/share-icon.png" alt="Share Property" className="w-[120px] h-[120px] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]" draggable={false} />
             </button>
           </div>
         </div>

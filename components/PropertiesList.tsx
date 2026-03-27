@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getSavedProperties, deleteProperty, SavedProperty } from "@/lib/storage";
-import { MapPin, Trash2, ChevronLeft, Camera, X } from "lucide-react";
+import { MapPin, Trash2, ChevronLeft, Camera } from "lucide-react";
 
 interface Props {
   onBack: () => void;
@@ -11,7 +11,6 @@ interface Props {
 
 export default function PropertiesList({ onBack, onSelectProperty }: Props) {
   const [properties, setProperties] = useState<SavedProperty[]>([]);
-  const [viewing, setViewing] = useState<SavedProperty | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,8 +66,8 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
             </p>
             {properties.map((prop) => (
               <div key={prop.id} className="bg-lens-card rounded-2xl shadow-card overflow-hidden active:scale-[0.98] transition-transform">
-                <div className="flex">
-                  <div onClick={() => setViewing(prop)} className="w-24 h-24 flex-shrink-0 bg-slate-200 cursor-pointer">
+                <div className="flex" onClick={() => onSelectProperty(prop)}>
+                  <div className="w-24 h-24 flex-shrink-0 bg-slate-200 cursor-pointer">
                     {(prop.thumbnailUrl || prop.photoUrl) ? (
                       <img src={prop.thumbnailUrl || prop.photoUrl!} alt="" className="w-full h-full object-cover" />
                     ) : (
@@ -77,7 +76,7 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
                       </div>
                     )}
                   </div>
-                  <div className="flex-1 p-3 flex flex-col justify-between min-w-0 cursor-pointer" onClick={() => setViewing(prop)}>
+                  <div className="flex-1 p-3 flex flex-col justify-between min-w-0 cursor-pointer">
                     <div>
                       <p className="text-[14px] font-semibold text-lens-text leading-tight line-clamp-2">{prop.address}</p>
                       {prop.latitude && (
@@ -100,34 +99,6 @@ export default function PropertiesList({ onBack, onSelectProperty }: Props) {
         )}
       </div>
 
-      {viewing && (
-        <div className="fixed inset-0 z-[60] bg-black flex flex-col" onClick={() => setViewing(null)}>
-          <div className="absolute top-0 inset-x-0 z-10 flex items-center justify-between px-4 pt-[env(safe-area-inset-top,12px)] pb-2">
-            <button onClick={() => setViewing(null)} className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center" type="button">
-              <X className="w-5 h-5 text-white" />
-            </button>
-            <button onClick={(e) => { e.stopPropagation(); onSelectProperty(viewing); }} className="px-4 py-2 rounded-full bg-lens-accent text-white text-[13px] font-semibold" type="button">
-              Load Property
-            </button>
-          </div>
-          <div className="flex-1 flex items-center justify-center">
-            {viewing.photoUrl ? (
-              <img src={viewing.photoUrl} alt="" className="w-full h-full object-contain" />
-            ) : (
-              <div className="text-center">
-                <Camera className="w-16 h-16 text-white/20 mx-auto mb-3" />
-                <p className="text-white/40 text-sm">No photo captured</p>
-              </div>
-            )}
-          </div>
-          <div className="bg-black/80 backdrop-blur-xl px-5 py-4" style={{ paddingBottom: "env(safe-area-inset-bottom, 16px)" }}>
-            <p className="text-white font-semibold text-[15px]">{viewing.address}</p>
-            <p className="text-white/50 text-[12px] mt-1">
-              {new Date(viewing.savedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
