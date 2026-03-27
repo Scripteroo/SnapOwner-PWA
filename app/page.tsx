@@ -23,6 +23,8 @@ import { saveProperty as saveToLocal, getPropertyCount, SavedProperty } from "@/
 import { RealieProperty } from "@/lib/realie";
 import { incrementLookup, dismissNag, grantLookupsForShare, getCreditState, updateCreditState } from "@/lib/credits";
 import { MOCK_PERMITS } from "@/lib/mock-data";
+import { addWatermark } from "@/lib/watermark";
+import MilestonePopup from "@/components/MilestonePopup";
 import { trackEvent } from "@/lib/analytics";
 import PropertyEnrichment from "@/components/PropertyEnrichment";
 
@@ -65,6 +67,8 @@ export default function HomePage() {
   const [lastRefreshCoords, setLastRefreshCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [editPulse, setEditPulse] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [showMilestone, setShowMilestone] = useState(false);
+  const [milestoneCount, setMilestoneCount] = useState(0);
 
   // Detect device type, PWA, and onboarding
   useEffect(() => {
@@ -227,7 +231,8 @@ useEffect(() => {
         const shareData: ShareData = { title: `Property: ${displayAddress}`, text };
         if (camera.photoUrl) {
           try {
-            const res = await fetch(camera.photoUrl);
+            const watermarked = await addWatermark(camera.photoUrl);
+            const res = await fetch(watermarked);
             const blob = await res.blob();
             const file = new File([blob], "property.jpg", { type: "image/jpeg" });
             if (navigator.canShare && navigator.canShare({ files: [file] })) { shareData.files = [file]; }
@@ -256,6 +261,20 @@ useEffect(() => {
       });
       const count = await getPropertyCount();
       setPropertyCount(count);
+
+      // Check milestones
+      const milestones = [5, 10, 25, 50, 100];
+      if (milestones.includes(count)) {
+        try {
+          const shown: number[] = JSON.parse(localStorage.getItem("hl_milestones_shown") || "[]");
+          if (!shown.includes(count)) {
+            shown.push(count);
+            localStorage.setItem("hl_milestones_shown", JSON.stringify(shown));
+            setMilestoneCount(count);
+            setShowMilestone(true);
+          }
+        } catch {}
+      }
 
       if (isSupabaseConfigured) {
         const { data: authData } = await supabase.auth.getSession();
@@ -334,6 +353,7 @@ useEffect(() => {
     <div className="min-h-screen bg-lens-bg pb-24">
       {isDesktop && <DesktopLanding />}
       {showOnboarding && !isDesktop && <OnboardingScreen onComplete={() => setShowOnboarding(false)} />}
+      {showMilestone && <MilestonePopup count={milestoneCount} onDismiss={() => setShowMilestone(false)} />}
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} onNewSearch={handleNewSearch} />
 
       {showNag && (
