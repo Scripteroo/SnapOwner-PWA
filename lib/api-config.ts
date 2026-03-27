@@ -5,7 +5,7 @@ function getBaseUrl(): string {
 
   // Native Capacitor app — point to deployed Vercel backend
   if (Capacitor.isNativePlatform()) {
-    return "https://houselens.io";
+    return "https://snapowner.com";
   }
 
   // Web: use relative URLs (same domain)

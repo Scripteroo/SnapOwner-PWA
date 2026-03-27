@@ -21,7 +21,7 @@ export default function LensLogo({ onTap }: Props) {
         >
           <img
             src="/logo.png"
-            alt="HouseLens"
+            alt="SnapOwner"
             className="w-[120px] h-[120px] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
             draggable={false}
           />

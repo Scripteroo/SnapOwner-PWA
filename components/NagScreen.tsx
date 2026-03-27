@@ -32,8 +32,8 @@ export default function NagScreen({ lookupCount, canDismiss, onDismiss, onShare5
             </h3>
             <p className="text-[14px] text-lens-secondary mt-1">
               {canDismiss
-                ? "Share HouseLens to keep looking up properties for free."
-                : "Share HouseLens with friends to continue using the app."
+                ? "Share SnapOwner to keep looking up properties for free."
+                : "Share SnapOwner with friends to continue using the app."
               }
             </p>
           </div>

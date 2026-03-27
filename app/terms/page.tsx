@@ -16,7 +16,7 @@ export default function TermsPage() {
           <button onClick={() => router.back()} className="w-9 h-9 rounded-full bg-white/70 flex items-center justify-center active:scale-90 transition-transform" type="button">
             <ArrowLeft className="w-5 h-5 text-lens-text" />
           </button>
-          <Link href="/" className="text-[17px] font-bold text-lens-text tracking-tight">HouseLens</Link>
+          <Link href="/" className="text-[17px] font-bold text-lens-text tracking-tight">SnapOwner</Link>
         </div>
       </div>
 
@@ -25,14 +25,14 @@ export default function TermsPage() {
         <p className="text-sm text-gray-500 mb-6">Last updated: March 26, 2026</p>
 
         <p className="text-sm text-gray-700 mb-4">
-          Welcome to HouseLens, a product of HouseLens LLC (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;). By
-          accessing or using the HouseLens application (&quot;Service&quot;), you agree to be bound by these Terms of
+          Welcome to SnapOwner, a product of SnapOwner LLC (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;). By
+          accessing or using the SnapOwner application (&quot;Service&quot;), you agree to be bound by these Terms of
           Service (&quot;Terms&quot;). If you do not agree, do not use the Service.
         </p>
 
         <h2 className="text-lg font-bold mt-6 mb-3">1. Description of Service</h2>
         <p className="text-sm text-gray-700 mb-4">
-          HouseLens is a real estate property intelligence application that provides property data, ownership
+          SnapOwner is a real estate property intelligence application that provides property data, ownership
           information, valuation estimates, and owner contact information through publicly available records and
           third-party data providers. The Service is designed for legitimate real estate, investment, and business
           purposes only.
@@ -40,9 +40,9 @@ export default function TermsPage() {
 
         <h2 className="text-lg font-bold mt-6 mb-3">2. FCRA Disclaimer</h2>
         <p className="text-sm text-gray-700 mb-4 font-semibold">
-          IMPORTANT: HouseLens is NOT a consumer reporting agency as defined by the Fair Credit Reporting Act
+          IMPORTANT: SnapOwner is NOT a consumer reporting agency as defined by the Fair Credit Reporting Act
           (&quot;FCRA&quot;), 15 U.S.C. &sect; 1681 et seq. The information provided through the Service does not constitute
-          a &quot;consumer report&quot; as defined by the FCRA. You shall not use information obtained through HouseLens
+          a &quot;consumer report&quot; as defined by the FCRA. You shall not use information obtained through SnapOwner
           for any purpose governed by the FCRA, including but not limited to:
         </p>
         <ul className="text-sm text-gray-700 mb-4 list-disc pl-6 space-y-1">
@@ -72,14 +72,14 @@ export default function TermsPage() {
           with the Telephone Consumer Protection Act (&quot;TCPA&quot;), 47 U.S.C. &sect; 227, and all applicable state
           telemarketing laws. This includes but is not limited to: honoring the National Do Not Call Registry,
           obtaining prior express consent before making autodialed or prerecorded calls, and complying with time-of-day
-          restrictions. HouseLens displays Do Not Call (DNC) status when available, but it is your sole responsibility
+          restrictions. SnapOwner displays Do Not Call (DNC) status when available, but it is your sole responsibility
           to verify compliance before initiating contact. Violations of the TCPA may result in significant statutory
           damages.
         </p>
 
         <h2 className="text-lg font-bold mt-6 mb-3">5. Accuracy of Information</h2>
         <p className="text-sm text-gray-700 mb-4">
-          Information provided through HouseLens is sourced from public records and third-party data providers.
+          Information provided through SnapOwner is sourced from public records and third-party data providers.
           We do not guarantee the accuracy, completeness, or timeliness of any information. Property valuations
           are estimates only and should not be relied upon as appraisals. You should independently verify all
           information before making decisions based on it.
@@ -94,14 +94,14 @@ export default function TermsPage() {
 
         <h2 className="text-lg font-bold mt-6 mb-3">7. Limitation of Liability</h2>
         <p className="text-sm text-gray-700 mb-4">
-          TO THE MAXIMUM EXTENT PERMITTED BY LAW, HOUSELENS LLC SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
+          TO THE MAXIMUM EXTENT PERMITTED BY LAW, SNAPOWNER LLC SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL,
           SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE. OUR TOTAL LIABILITY
           SHALL NOT EXCEED THE AMOUNT YOU PAID TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.
         </p>
 
         <h2 className="text-lg font-bold mt-6 mb-3">8. Indemnification</h2>
         <p className="text-sm text-gray-700 mb-4">
-          You agree to indemnify and hold harmless HouseLens LLC, its officers, directors, employees, and agents
+          You agree to indemnify and hold harmless SnapOwner LLC, its officers, directors, employees, and agents
           from any claims, damages, losses, or expenses arising from your use of the Service, your violation of
           these Terms, or your violation of any rights of a third party.
         </p>
@@ -131,12 +131,12 @@ export default function TermsPage() {
         <h2 className="text-lg font-bold mt-6 mb-3">12. Contact</h2>
         <p className="text-sm text-gray-700 mb-8">
           For questions about these Terms, contact us at{" "}
-          <a href="mailto:support@houselens.io" className="text-blue-600 underline">support@houselens.io</a>.
+          <a href="mailto:support@snapowner.com" className="text-blue-600 underline">support@snapowner.com</a>.
           To report misuse, contact{" "}
-          <a href="mailto:abuse@houselens.io" className="text-blue-600 underline">abuse@houselens.io</a>.
+          <a href="mailto:abuse@snapowner.com" className="text-blue-600 underline">abuse@snapowner.com</a>.
         </p>
 
-        <p className="text-xs text-gray-400 mb-4">&copy; 2026 HouseLens LLC. All rights reserved.</p>
+        <p className="text-xs text-gray-400 mb-4">&copy; 2026 SnapOwner LLC. All rights reserved.</p>
       </div>
 
       <BottomNav onTabChange={() => router.push("/")} />

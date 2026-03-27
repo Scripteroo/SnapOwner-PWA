@@ -19,14 +19,14 @@ export default function DesktopLanding() {
             />
             <img
               src="/logo.png"
-              alt="HouseLens"
+              alt="SnapOwner"
               className="relative w-[100px] h-[100px] object-contain drop-shadow-[0_4px_20px_rgba(96,165,250,0.3)]"
               draggable={false}
             />
           </div>
 
           {/* Title */}
-          <h1 className="text-[42px] font-extrabold text-white tracking-tight mb-3">HouseLens</h1>
+          <h1 className="text-[42px] font-extrabold text-white tracking-tight mb-3">SnapOwner</h1>
           <div className="w-16 h-1 rounded-full bg-orange-500 mb-6" />
 
           {/* Tagline */}
@@ -34,7 +34,7 @@ export default function DesktopLanding() {
             Snap any house. <span className="text-orange-400">See the owner.</span> Get their number.
           </p>
           <p className="text-[15px] text-white/50 text-center mb-12 max-w-md">
-            HouseLens is a mobile-first property intelligence app designed for use in the field.
+            SnapOwner is a mobile-first property intelligence app designed for use in the field.
           </p>
 
           {/* QR Code */}
@@ -48,8 +48,8 @@ export default function DesktopLanding() {
             />
             <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
               <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://houselens.io&bgcolor=0B1D3A&color=FFFFFF"
-                alt="Scan to open HouseLens"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://snapowner.com&bgcolor=0B1D3A&color=FFFFFF"
+                alt="Scan to open SnapOwner"
                 width={200}
                 height={200}
                 className="mx-auto"

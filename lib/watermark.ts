@@ -43,11 +43,11 @@ export async function addWatermark(photoUrl: string): Promise<string> {
       ctx.drawImage(logoCache, 12, centerY - 12, 24, 24);
     }
 
-    // "houselens.io" text
+    // "snapowner.com" text
     ctx.font = "bold 14px -apple-system, sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.95)";
     ctx.textBaseline = "middle";
-    ctx.fillText("houselens.io", logoCache ? 42 : 12, centerY);
+    ctx.fillText("snapowner.com", logoCache ? 42 : 12, centerY);
 
     // Tagline on right
     ctx.font = "12px -apple-system, sans-serif";

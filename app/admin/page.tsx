@@ -131,7 +131,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl font-bold text-gray-900">HouseLens Analytics</h1>
+          <h1 className="text-xl font-bold text-gray-900">SnapOwner Analytics</h1>
           <p className="text-[11px] text-gray-400">Auto-refreshes every 60s</p>
         </div>
 

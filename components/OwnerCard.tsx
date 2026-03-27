@@ -191,9 +191,9 @@ export default function OwnerCard({ address, cachedData, cachedSkipTrace, onData
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "HouseLens — Instant Property Intelligence",
-          text: "I just looked up a property on HouseLens and found the owner's phone number instantly! Try it free.\n\n---\n\uD83D\uDCF2 Get HouseLens — look up any property owner instantly\nNo install needed \u2192 houselens.io",
-          url: "https://houselens.io",
+          title: "SnapOwner — Instant Property Intelligence",
+          text: "I just looked up a property on SnapOwner and found the owner's phone number instantly! Try it free.\n\n---\n\uD83D\uDCF2 Get SnapOwner — look up any property owner instantly\nNo install needed \u2192 snapowner.com",
+          url: "https://snapowner.com",
         });
         await grantSkipTraceCredits(3);
         setShowShareGate(false);
@@ -230,7 +230,7 @@ export default function OwnerCard({ address, cachedData, cachedSkipTrace, onData
               {showShareGate ? (
                 <div className="mb-5 p-4 rounded-2xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200">
                   <p className="text-[14px] font-bold text-gray-800 mb-1">Want more owner lookups?</p>
-                  <p className="text-[12px] text-gray-600 mb-3">Share HouseLens with friends to unlock 3 more contact lookups.</p>
+                  <p className="text-[12px] text-gray-600 mb-3">Share SnapOwner with friends to unlock 3 more contact lookups.</p>
                   <button
                     onClick={handleShareForCredits}
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white text-[14px] font-bold shadow-lg active:scale-[0.97] transition-all"

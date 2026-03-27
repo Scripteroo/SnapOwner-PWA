@@ -34,13 +34,13 @@ export default function MilestonePopup({ count, onDismiss }: Props) {
   }, []);
 
   const handleShare = async () => {
-    const shareFooter = "\n\n---\n\uD83D\uDCF2 Get HouseLens \u2014 look up any property owner instantly\nNo install needed \u2192 houselens.io";
+    const shareFooter = "\n\n---\n\uD83D\uDCF2 Get SnapOwner \u2014 look up any property owner instantly\nNo install needed \u2192 snapowner.com";
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "HouseLens Streak",
-          text: `I just scanned ${count} properties on HouseLens! \uD83C\uDFE0\uD83D\uDD0D${shareFooter}`,
-          url: "https://houselens.io",
+          title: "SnapOwner Streak",
+          text: `I just scanned ${count} properties on SnapOwner! \uD83C\uDFE0\uD83D\uDD0D${shareFooter}`,
+          url: "https://snapowner.com",
         });
         trackEvent("share_attempt", { milestone: count });
       } catch {}

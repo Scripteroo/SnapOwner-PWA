@@ -63,7 +63,7 @@ export default function SettingsPage({ onBack }: Props) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `houselens-properties-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `snapowner-properties-${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
       trackEvent("csv_export", { count: properties.length });
@@ -73,7 +73,7 @@ export default function SettingsPage({ onBack }: Props) {
   };
 
   const handleClearAll = async () => {
-    const req = indexedDB.deleteDatabase("houselens_db");
+    const req = indexedDB.deleteDatabase("snapowner_db");
     req.onsuccess = () => {
       setPropertyCount(0);
       setCredits({ skipTrace: 0, lookupsUsed: 0, lookupsLimit: 10, unlimited: false });
@@ -182,7 +182,7 @@ export default function SettingsPage({ onBack }: Props) {
             <button
               onClick={() => {
                 if (navigator.share) {
-                  navigator.share({ title: "Rate HouseLens", url: "https://houselens.io" }).catch(() => {});
+                  navigator.share({ title: "Rate SnapOwner", url: "https://snapowner.io" }).catch(() => {});
                 }
               }}
               className="w-full px-4 py-3.5 flex items-center justify-between active:bg-lens-bg transition-colors"
@@ -190,7 +190,7 @@ export default function SettingsPage({ onBack }: Props) {
             >
               <div className="flex items-center gap-3">
                 <Star className="w-5 h-5 text-amber-400" />
-                <span className="text-[14px] font-medium text-lens-text">Rate HouseLens</span>
+                <span className="text-[14px] font-medium text-lens-text">Rate SnapOwner</span>
               </div>
               <ChevronRight className="w-4 h-4 text-lens-secondary" />
             </button>

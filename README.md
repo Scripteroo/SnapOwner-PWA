@@ -1,4 +1,4 @@
-# HouseLens – PWA
+# SnapOwner – PWA
 
 Instant property intelligence from your phone.
 

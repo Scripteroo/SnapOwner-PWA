@@ -144,15 +144,15 @@ useEffect(() => {
     setShouldLookup(true);
   }, []);
 
-  const shareFooter = "\n\n---\n\uD83D\uDCF2 Get HouseLens — look up any property owner instantly\nNo install needed \u2192 houselens.io";
+  const shareFooter = "\n\n---\n\uD83D\uDCF2 Get SnapOwner — look up any property owner instantly\nNo install needed \u2192 snapowner.com";
 
   const handleShare5 = useCallback(async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "HouseLens — Free Property Intelligence",
-          text: `I just looked up a property on HouseLens and found out it's worth ${realieData?.modelValue ? formatMoney(realieData.modelValue) : "thousands"}! Try it free.${shareFooter}`,
-          url: "https://houselens.io",
+          title: "SnapOwner — Free Property Intelligence",
+          text: `I just looked up a property on SnapOwner and found out it's worth ${realieData?.modelValue ? formatMoney(realieData.modelValue) : "thousands"}! Try it free.${shareFooter}`,
+          url: "https://snapowner.com",
         });
         trackEvent("share_attempt");
         await grantLookupsForShare(5);
@@ -168,9 +168,9 @@ useEffect(() => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "HouseLens — Free Property Intelligence",
-          text: `Look up any property and instantly see owner info, tax records, valuations, and more. Try HouseLens free!${shareFooter}`,
-          url: "https://houselens.io",
+          title: "SnapOwner — Free Property Intelligence",
+          text: `Look up any property and instantly see owner info, tax records, valuations, and more. Try SnapOwner free!${shareFooter}`,
+          url: "https://snapowner.com",
         });
         trackEvent("share_attempt");
         await grantLookupsForShare(10);
@@ -227,7 +227,7 @@ useEffect(() => {
     if (navigator.vibrate) navigator.vibrate(10);
     if (navigator.share) {
       try {
-        const text = `HouseLens Property\n\n📍 ${displayAddress}${realieData ? `\n\n👤 Owner: ${realieData.ownerName || "Unknown"}\n💰 Estimated Value: ${formatMoney(realieData.modelValue)}\n🏠 ${realieData.totalBedrooms || "?"}bd / ${realieData.totalBathrooms || "?"}ba · ${realieData.buildingArea?.toLocaleString() || "?"} sqft\n📅 Year Built: ${realieData.yearBuilt || "?"}\n💵 Last Sale: ${formatMoney(realieData.transferPrice)} (${formatDate(realieData.transferDate)})\n🏛 Annual Tax: ${formatMoney(realieData.taxValue)}` : ""}${shareFooter}`;
+        const text = `SnapOwner Property\n\n📍 ${displayAddress}${realieData ? `\n\n👤 Owner: ${realieData.ownerName || "Unknown"}\n💰 Estimated Value: ${formatMoney(realieData.modelValue)}\n🏠 ${realieData.totalBedrooms || "?"}bd / ${realieData.totalBathrooms || "?"}ba · ${realieData.buildingArea?.toLocaleString() || "?"} sqft\n📅 Year Built: ${realieData.yearBuilt || "?"}\n💵 Last Sale: ${formatMoney(realieData.transferPrice)} (${formatDate(realieData.transferDate)})\n🏛 Annual Tax: ${formatMoney(realieData.taxValue)}` : ""}${shareFooter}`;
         const shareData: ShareData = { title: `Property: ${displayAddress}`, text };
         if (camera.photoUrl) {
           try {
@@ -420,7 +420,7 @@ useEffect(() => {
                 <div className="flex-1">
                   <p className="text-[15px] font-bold text-lens-text mb-1">Location Access Required</p>
                   <p className="text-[12px] text-lens-secondary leading-relaxed mb-2">
-                    HouseLens needs your location to identify nearby properties. Please enable Location Services in your device settings.
+                    SnapOwner needs your location to identify nearby properties. Please enable Location Services in your device settings.
                   </p>
                   <p className="text-[11px] text-lens-secondary/70 mb-3">
                     iOS: Settings → Privacy → Location Services → Safari → While Using
@@ -609,9 +609,9 @@ useEffect(() => {
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
             <div className="text-center mb-4">
               <div className="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-lens-accent to-blue-600 flex items-center justify-center shadow-lg">
-                <img src="/logo.png" alt="HouseLens" className="w-10 h-10 rounded-lg" />
+                <img src="/logo.png" alt="SnapOwner" className="w-10 h-10 rounded-lg" />
               </div>
-              <h3 className="text-[18px] font-bold text-gray-900">Install HouseLens</h3>
+              <h3 className="text-[18px] font-bold text-gray-900">Install SnapOwner</h3>
               <p className="text-[13px] text-gray-500 mt-1">Add to your home screen for the full experience + 1 free owner contact lookup!</p>
             </div>
             <div className="bg-gray-50 rounded-2xl p-4 mb-4">
@@ -626,7 +626,7 @@ useEffect(() => {
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[12px] text-gray-500">3.</span>
-                <p className="text-[12px] text-gray-600">Tap <span className="font-semibold">"Add"</span> — then reopen HouseLens from your home screen</p>
+                <p className="text-[12px] text-gray-600">Tap <span className="font-semibold">"Add"</span> — then reopen SnapOwner from your home screen</p>
               </div>
             </div>
             <div className="bg-gray-50 rounded-2xl p-4 mb-4">

@@ -6,7 +6,7 @@ export default function OfflinePage() {
           <span className="text-3xl">📡</span>
         </div>
         <h1 className="text-xl font-bold text-lens-text mb-2">You&apos;re Offline</h1>
-        <p className="text-lens-secondary text-sm">HouseLens needs an internet connection. Please check your connection and try again.</p>
+        <p className="text-lens-secondary text-sm">SnapOwner needs an internet connection. Please check your connection and try again.</p>
       </div>
     </div>
   );

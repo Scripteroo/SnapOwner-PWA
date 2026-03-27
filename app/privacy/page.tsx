@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <button onClick={() => router.back()} className="w-9 h-9 rounded-full bg-white/70 flex items-center justify-center active:scale-90 transition-transform" type="button">
             <ArrowLeft className="w-5 h-5 text-lens-text" />
           </button>
-          <Link href="/" className="text-[17px] font-bold text-lens-text tracking-tight">HouseLens</Link>
+          <Link href="/" className="text-[17px] font-bold text-lens-text tracking-tight">SnapOwner</Link>
         </div>
       </div>
 
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
         <p className="text-sm text-gray-500 mb-6">Last updated: March 26, 2026</p>
 
         <p className="text-sm text-gray-700 mb-4">
-          HouseLens LLC (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the HouseLens application (&quot;Service&quot;).
+          SnapOwner LLC (&quot;Company&quot;, &quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the SnapOwner application (&quot;Service&quot;).
           This Privacy Policy describes how we collect, use, and share information when you use our Service.
         </p>
 
@@ -119,14 +119,14 @@ export default function PrivacyPage() {
         </ul>
         <p className="text-sm text-gray-700 mb-4">
           To exercise your CCPA rights, contact us at{" "}
-          <a href="mailto:support@houselens.io" className="text-blue-600 underline">support@houselens.io</a>.
+          <a href="mailto:support@snapowner.com" className="text-blue-600 underline">support@snapowner.com</a>.
         </p>
 
         <h2 className="text-lg font-bold mt-6 mb-3">6. Property Owner Opt-Out</h2>
         <p className="text-sm text-gray-700 mb-4">
           If you are a property owner and wish to opt out of having your information displayed through our
           Service, please contact us at{" "}
-          <a href="mailto:abuse@houselens.io" className="text-blue-600 underline">abuse@houselens.io</a>{" "}
+          <a href="mailto:abuse@snapowner.com" className="text-blue-600 underline">abuse@snapowner.com</a>{" "}
           with your name, property address, and a description of the information you would like removed. We
           will process opt-out requests within 30 days, subject to verification of ownership.
         </p>
@@ -146,13 +146,13 @@ export default function PrivacyPage() {
         <h2 className="text-lg font-bold mt-6 mb-3">9. Contact Us</h2>
         <p className="text-sm text-gray-700 mb-8">
           For privacy-related questions or requests, contact us at{" "}
-          <a href="mailto:support@houselens.io" className="text-blue-600 underline">support@houselens.io</a>.
+          <a href="mailto:support@snapowner.com" className="text-blue-600 underline">support@snapowner.com</a>.
           <br />
           To report misuse of data or request owner opt-out, contact{" "}
-          <a href="mailto:abuse@houselens.io" className="text-blue-600 underline">abuse@houselens.io</a>.
+          <a href="mailto:abuse@snapowner.com" className="text-blue-600 underline">abuse@snapowner.com</a>.
         </p>
 
-        <p className="text-xs text-gray-400 mb-4">&copy; 2026 HouseLens LLC. All rights reserved.</p>
+        <p className="text-xs text-gray-400 mb-4">&copy; 2026 SnapOwner LLC. All rights reserved.</p>
       </div>
 
       <BottomNav onTabChange={() => router.push("/")} />
