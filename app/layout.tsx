@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     description: "Instantly look up any property owner's phone number, email, property value, and tax records.",
     images: ["https://snapowner.com/og-image.png"],
   },
-  icons: { apple: "/icons/icon-192.png" },
+  icons: { apple: "/apple-touch-icon.png", icon: "/favicon.ico" },
   other: { "apple-mobile-web-app-title": "SnapOwner" },
 };
 
@@ -32,7 +32,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head><link rel="apple-touch-icon" href="/icons/icon-192.png" /></head>
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className="font-sans antialiased">
         {children}
         <Analytics />
