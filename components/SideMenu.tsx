@@ -41,7 +41,7 @@ export default function SideMenu({ open, onClose, onNewSearch }: Props) {
             <span className="text-[15px] font-medium">Contact Support</span>
           </a>
 
-          <a href="mailto:abuse@snapowner.com" className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors">
+          <a href="mailto:support@snapowner.com" className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-lens-text hover:bg-lens-bg active:bg-lens-bg transition-colors">
             <AlertTriangle className="w-5 h-5 text-lens-secondary" />
             <span className="text-[15px] font-medium">Report Misuse</span>
           </a>
