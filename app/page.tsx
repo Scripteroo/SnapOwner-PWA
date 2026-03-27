@@ -66,7 +66,6 @@ export default function HomePage() {
   const [loadedFromLibrary, setLoadedFromLibrary] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [editPulse, setEditPulse] = useState(false);
-  const [showNumberPicker, setShowNumberPicker] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [showMilestone, setShowMilestone] = useState(false);
   const [milestoneCount, setMilestoneCount] = useState(0);
@@ -445,60 +444,52 @@ useEffect(() => {
                     <div className="text-[15px] leading-snug text-lens-text font-medium">
                       <span className="flex items-center gap-2 text-lens-secondary"><Loader2 className="w-4 h-4 animate-spin" />Detecting location…</span>
                     </div>
-                  ) : showNumberPicker && displayAddress.match(/^(\d+)/) ? (() => {
-                    const numMatch = displayAddress.match(/^(\d+)/)!;
-                    const houseNum = parseInt(numMatch[1], 10);
-                    const rest = displayAddress.replace(/^\d+\s*/, "");
-                    return (
-                      <div className="flex items-center gap-2">
-                        <HouseNumberPicker
-                          currentNumber={houseNum}
-                          onNumberChange={(num) => {
-                            const newAddr = displayAddress.replace(/^\d+/, String(num));
-                            setManualAddress(newAddr);
-                            setRealieData(null);
-                            setSkipTraceData(null);
-                            setShouldLookup(false);
-                          }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[15px] leading-snug text-lens-text font-medium">{rest}</p>
-                          {geo.latitude && (
-                            <p className="text-[11px] text-lens-secondary mt-1">
-                              {geo.latitude.toFixed(6)}° N, {Math.abs(geo.longitude!).toFixed(6)}° W
-                              {geo.accuracy && <span className="ml-1.5 text-lens-accent/60">±{Math.round(geo.accuracy)}m</span>}
-                            </p>
-                          )}
-                          <p className="text-[10px] text-lens-accent/60 mt-1 font-medium">Scroll number to adjust</p>
+                  ) : (() => {
+                    const numMatch = displayAddress.match(/^(\d+)/);
+                    const hasNumber = numMatch && !isNaN(parseInt(numMatch[1], 10));
+                    if (hasNumber) {
+                      const houseNum = parseInt(numMatch![1], 10);
+                      const rest = displayAddress.replace(/^\d+\s*/, "");
+                      return (
+                        <div className="flex items-center gap-2">
+                          <HouseNumberPicker
+                            currentNumber={houseNum}
+                            onNumberChange={(num) => {
+                              const newAddr = displayAddress.replace(/^\d+/, String(num));
+                              setManualAddress(newAddr);
+                              setRealieData(null);
+                              setSkipTraceData(null);
+                              setShouldLookup(false);
+                            }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[15px] leading-snug text-lens-text font-medium">{rest}</p>
+                            {geo.latitude && (
+                              <p className="text-[11px] text-lens-secondary mt-1">
+                                {geo.latitude.toFixed(6)}° N, {Math.abs(geo.longitude!).toFixed(6)}° W
+                                {geo.accuracy && <span className="ml-1.5 text-lens-accent/60">±{Math.round(geo.accuracy)}m</span>}
+                              </p>
+                            )}
+                          </div>
                         </div>
+                      );
+                    }
+                    return (
+                      <div className="text-[15px] leading-snug text-lens-text font-medium">
+                        <p>{displayAddress}</p>
+                        {geo.latitude && (
+                          <p className="text-[11px] text-lens-secondary mt-1">
+                            {geo.latitude.toFixed(6)}° N, {Math.abs(geo.longitude!).toFixed(6)}° W
+                            {geo.accuracy && <span className="ml-1.5 text-lens-accent/60">±{Math.round(geo.accuracy)}m</span>}
+                          </p>
+                        )}
                       </div>
                     );
-                  })() : (
-                    <div className="text-[15px] leading-snug text-lens-text font-medium cursor-pointer" onClick={() => { if (navigator.vibrate) navigator.vibrate(10); setEditingAddress(true); }}>
-                      <p>{displayAddress}</p>
-                      {geo.latitude && (
-                        <p className="text-[11px] text-lens-secondary mt-1">
-                          {geo.latitude.toFixed(6)}° N, {Math.abs(geo.longitude!).toFixed(6)}° W
-                          {geo.accuracy && <span className="ml-1.5 text-lens-accent/60">±{Math.round(geo.accuracy)}m</span>}
-                        </p>
-                      )}
-                      <p className="text-[10px] text-lens-accent/60 mt-2 font-medium">Tap to edit</p>
-                    </div>
-                  )}
+                  })()}
                 </div>
                 <div className="flex flex-col gap-1.5 flex-shrink-0 mt-0.5">
                   <button onClick={() => { if (navigator.vibrate) navigator.vibrate(10); setEditingAddress(true); }} className={`w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-all duration-150 hover:bg-lens-accent/10 ${editPulse ? "bg-lens-accent/20 animate-pulse" : "bg-lens-bg"}`} type="button">
                     <Pencil className={`w-4 h-4 ${editPulse ? "text-lens-accent" : "text-lens-secondary"}`} />
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (navigator.vibrate) navigator.vibrate(10);
-                      setShowNumberPicker(!showNumberPicker);
-                    }}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center active:scale-90 transition-all duration-150 hover:bg-lens-accent/10 ${showNumberPicker ? "bg-lens-accent/10" : "bg-lens-bg"}`}
-                    type="button"
-                  >
-                    <span className="text-[13px] font-bold text-lens-secondary">#</span>
                   </button>
                   <button
                     onClick={() => {
